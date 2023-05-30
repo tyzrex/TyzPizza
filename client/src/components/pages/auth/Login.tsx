@@ -1,40 +1,120 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../../assets/logo.png";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/20/solid";
 import { ILogin } from "./types";
-import { useState } from "react";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import app from "../../../config/firebaseConnect";
-import { SuccessToast } from "../../toast/toast";
+import React, { useCallback, useState } from "react";
+import { signInWithPopup } from "firebase/auth";
+import { ErrorToast, SuccessToast } from "../../toast/toast";
+import { firebaseAuth, loginUser, provider } from "../../../api";
+import { dataValidation } from "../../../validation/validate";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import useAuthStore from "../../../store/store";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [loginData, setLoginData] = useState<ILogin>({
     email: "",
     password: "",
   });
 
-  const firebaseAuth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+  const [loginError, setLoginError] = useState<ILogin>({
+    email: "",
+    password: "",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-  };
+  const validateData = useCallback(
+    (name: string, value: string) => {
+      return dataValidation({
+        ...loginData,
+        [name]: value,
+      });
+    },
+    [loginData]
+  );
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setLoginData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+      setLoginError((prevErrors) => ({
+        ...prevErrors,
+        [name]: validateData(name, value)[name],
+      }));
+    },
+    [validateData]
+  );
 
   const loginWithGoogle = async () => {
     await signInWithPopup(firebaseAuth, provider)
       .then((result) => {
-        firebaseAuth.onAuthStateChanged((user) => {
-          if (user) {
-            user.getIdToken().then((idToken) => {
-              console.log(idToken);
-              SuccessToast("Login Successful");
-            });
-          }
-        });
+        if (result) {
+          firebaseAuth.onAuthStateChanged((user) => {
+            if (user) {
+              user.getIdToken().then((idToken) => {
+                loginUser(idToken).then((res) => {
+                  console.log(res);
+                  if (res.status === 200) {
+                    SuccessToast("Login Successfull");
+                    navigate("/");
+                    useAuthStore.setState({ user: res.data.user });
+                  }
+                });
+              });
+            }
+          });
+        }
       })
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const loginWithEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { email } = loginData;
+    const { email: emailError, password: passwordError } = validateData(
+      "email",
+      email
+    );
+    setLoginError({ email: emailError, password: passwordError });
+    if (!emailError && !passwordError) {
+      await signInWithEmailAndPassword(
+        firebaseAuth,
+        loginData.email,
+        loginData.password
+      )
+        .then((result) => {
+          if (result) {
+            firebaseAuth.onAuthStateChanged((user) => {
+              if (user) {
+                user.getIdToken().then((idToken) => {
+                  loginUser(idToken).then((res) => {
+                    console.log(res);
+                    if (res.status === 200) {
+                      SuccessToast("Login Successfull");
+                      navigate("/");
+                    }
+                  });
+                });
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          if (error.code === "auth/wrong-password") {
+            ErrorToast("Wrong Password");
+          } else if (error.code === "auth/user-not-found") {
+            ErrorToast("User not found");
+          } else {
+            ErrorToast("Something went wrong");
+          }
+        });
+    } else {
+      ErrorToast("Fill the details correctly");
+    }
   };
 
   return (
@@ -54,7 +134,7 @@ const Login = () => {
             </div>
 
             <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={loginWithEmail}>
                 <div>
                   <label
                     htmlFor="email"
@@ -75,10 +155,10 @@ const Login = () => {
                       placeholder="Enter your email address"
                       className="block w-full rounded-md border border-gray-200 py-2 text-gray-900 dark:bg-bg-dark-main/40 dark:border-gray-700 dark:text-gray-300 shadow-sm  placeholder:text-gray-400sm:text-sm sm:leading-6 px-4 pl-9"
                     />
-                    {/* {loginError.email && (
-                      <p className="text-red-500">{loginError.email}</p>
-                    )} */}
                   </div>
+                  {loginError.email && (
+                    <h1 className="text-red-500">{loginError.email}</h1>
+                  )}
                 </div>
 
                 <div>
@@ -111,10 +191,10 @@ const Login = () => {
                       placeholder="Password"
                       className="block w-full rounded-md border border-gray-200 py-2 text-gray-900 dark:bg-bg-dark-main/40 dark:border-gray-700 dark:text-gray-300 shadow-sm placeholder:text-gray-400 pl-9 sm:text-sm sm:leading-6 px-4 "
                     />
-                    {/* {loginError.password && (
-                      <p className="text-red-500">{loginError.password}</p>
-                    )} */}
                   </div>
+                  {loginError.password && (
+                    <p className="text-red-500">{loginError.password}</p>
+                  )}
                 </div>
 
                 <div>
