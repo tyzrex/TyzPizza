@@ -3,20 +3,31 @@ import * as admin from "firebase-admin";
 import { AuthorizedRequest } from '../types/types';
 
 export const isAuthenticated = async (req: AuthorizedRequest, res: Response, next: NextFunction): Promise<any> => {
+    let token:string = ""
+    
     if (!req.headers.authorization) {
-        return res.status(500).send("Token Not Found");
+        if (req.cookies.session_token) {
+            token = req.cookies.session_token;
+        }
+        else{
+            return res.status(401).send("Unauthorized");
+        }
     }
-    const token:string = req.headers.authorization.split(" ")[1];
-
+    else{
+        token = req.headers.authorization.split("Bearer ")[1];
+    }
+    if (!token) {
+        return res.status(401).send("Unauthorized");
+    }
+    
     try {
-        console.log("Verifying token");
         const user = await admin.auth().verifyIdToken(token as string);
         if(!user){
             return res.status(401).send("Unauthorized");
         }
-        console.log("Token verified");
         //pass user to next middleware
         req.user =  user;
+        req.token = token;
         next();
     }
     catch (err) {
