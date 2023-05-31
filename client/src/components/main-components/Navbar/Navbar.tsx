@@ -10,10 +10,12 @@ import { navVariant } from "../../utils/motion";
 import { Link } from "react-router-dom";
 import Theme from "../../utils/Theme";
 import useAuthStore from "../../../store/store";
+import DropDown from "../../dropdown/NavDropdown";
+import { logOutUser } from "../../../api";
 
 const Navbar = () => {
   const user = useAuthStore((state) => state.user);
-  console.log(user);
+
   const [nav, setNav] = useState<boolean>(false);
   const handleNav = () => {
     setNav(true);
@@ -21,6 +23,21 @@ const Navbar = () => {
 
   const closeNav = () => {
     setNav(false);
+  };
+
+  const navbar: any = {
+    hidden: {
+      opacity: 0,
+      y: -90,
+    },
+
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 1,
+      },
+    },
   };
 
   const item: any = {
@@ -45,30 +62,35 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-bg-dark-main">
-      <nav className="relative py-3 flex justify-between items-center max-w-[90%] mx-auto xl:max-w-[1200px]">
+    <motion.div className="bg-white dark:bg-bg-dark-main">
+      <motion.nav className="relative py-3 xl:py-6 flex justify-between items-center max-w-[90%] mx-auto xl:max-w-[1200px]">
         <Link className="" to={"/"}>
           <img src={Logo} alt="logo" className="w-[200px]" />
         </Link>
-        <div className="xl:hidden flex justify-center items-center gap-4">
-          <div>
-            <a
-              className="hidden md:inline-block ml-auto  py-4 px-6 bg-accent-2 hover:bg-gray-100 text-sm text-white font-bold  rounded-full transition duration-200"
-              href="#"
-            >
-              Sign In
-            </a>
-            <a
-              className="hidden md:inline-block py-4 px-6 ml-4 bg-accent-1 hover:bg-blue-600 text-sm text-white font-bold rounded-full transition duration-200"
-              href="#"
-            >
-              Sign up
-            </a>
-          </div>
-
+        <div className="flex justify-center items-center gap-4">
+          {user ? (
+            <div>
+              <DropDown />
+            </div>
+          ) : (
+            <div>
+              <a
+                className="hidden md:inline-block ml-auto  py-4 px-6 bg-accent-2 hover:bg-gray-100 text-sm text-white font-bold  rounded-full transition duration-200"
+                href="#"
+              >
+                Sign In
+              </a>
+              <a
+                className="hidden md:inline-block py-4 px-6 ml-4 bg-accent-1 hover:bg-blue-600 text-sm text-white font-bold rounded-full transition duration-200"
+                href="#"
+              >
+                Sign up
+              </a>
+            </div>
+          )}
           <button
             onClick={handleNav}
-            className="navbar-burger flex items-center text-[#a55e6f] p-3"
+            className="navbar-burger flex items-center text-[#a55e6f] p-3 xl:hidden"
           >
             <Bars3Icon className="h-10 w-10" />
           </button>
@@ -142,31 +164,7 @@ const Navbar = () => {
             </motion.div>
           </div>
         </ul>
-        {user ? (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center">
-              <img
-                src={user.picture}
-                alt="avatar"
-                className="w-10 h-10 rounded-full"
-              />
-              <h1 className="text-sm dark:text-white">{user.name}</h1>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <Link
-              to="/login"
-              className="hidden xl:inline-block xl:ml-auto lg:mr-3 btn-secondary"
-            >
-              Sign In
-            </Link>
-            <Link to="/register" className="hidden xl:inline-block btn-main">
-              Sign up
-            </Link>
-          </div>
-        )}
-      </nav>
+      </motion.nav>
       <AnimatePresence>
         {nav && (
           <motion.div
@@ -263,28 +261,47 @@ const Navbar = () => {
                   </ul>
                 </div>
                 <div className="mt-auto">
-                  <div className="pt-6">
-                    <motion.div
-                      variants={navItem}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      exit="exit"
-                      className="block px-4 py-4 mb-3 text-xs text-center font-semibold leading-none bg-accent-2 text-white hover:bg-gray-600 rounded-xl"
-                    >
-                      Sign in
-                    </motion.div>
-                    <motion.div
-                      variants={navItem}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      exit="exit"
-                      className="block px-4 py-3 mb-2 leading-loose text-xs text-center text-white font-semibold bg-accent-1 hover:bg-blue-700  rounded-xl"
-                    >
-                      Sign Up
-                    </motion.div>
-                  </div>
+                  {user ? (
+                    <div className="flex flex-col gap-4">
+                      <h1 className="text-center text-accent-1 dark:text-white">
+                        Signed In As : {user.name}
+                      </h1>
+                      <motion.div
+                        onClick={logOutUser}
+                        variants={navItem}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        exit="exit"
+                        className="block px-4 py-4 mb-3 text-xs text-center font-semibold leading-none bg-accent-2 text-white hover:bg-gray-600 rounded-xl"
+                      >
+                        Sign Out
+                      </motion.div>
+                    </div>
+                  ) : (
+                    <div className="pt-6">
+                      <motion.div
+                        variants={navItem}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        exit="exit"
+                        className="block px-4 py-4 mb-3 text-xs text-center font-semibold leading-none bg-accent-2 text-white hover:bg-gray-600 rounded-xl"
+                      >
+                        Sign in
+                      </motion.div>
+                      <motion.div
+                        variants={navItem}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        exit="exit"
+                        className="block px-4 py-3 mb-2 leading-loose text-xs text-center text-white font-semibold bg-accent-1 hover:bg-blue-700  rounded-xl"
+                      >
+                        Sign Up
+                      </motion.div>
+                    </div>
+                  )}
                   <p className="my-4 text-xs text-center text-accent-4 dark:text-gray-400">
                     <span>Copyright © 2021</span>
                   </p>
@@ -294,7 +311,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

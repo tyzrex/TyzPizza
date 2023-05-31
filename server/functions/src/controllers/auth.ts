@@ -52,4 +52,27 @@ export const getUser = async (req: AuthorizedRequest, res: Response) => {
     }
 }
 
+export const logOutUser = async (req: AuthorizedRequest, res: Response) => {
+    try{
+        const user = req.user;
+        if(user){
+            return res.clearCookie("session_token").json({
+                message: "User logged out successfully"
+            })
+        }
+        else{
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+}
+
+
 

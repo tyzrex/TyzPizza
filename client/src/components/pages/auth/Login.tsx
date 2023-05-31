@@ -95,6 +95,7 @@ const Login = () => {
                     console.log(res);
                     if (res.status === 200) {
                       SuccessToast("Login Successfull");
+                      useAuthStore.setState({ user: res.data.user });
                       navigate("/");
                     }
                   });
