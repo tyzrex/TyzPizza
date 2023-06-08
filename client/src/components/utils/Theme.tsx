@@ -24,15 +24,15 @@ const Theme = () => {
             className="flex justify-center items-center gap-2"
             onClick={handleTheme}
           >
-            <span className="">Dark Mode</span>
-            <MoonIcon className="h-5 w-5" />
+            {/* <span className="">Dark Mode</span> */}
+            <MoonIcon className="h-5 w-5" />j
           </div>
         ) : (
           <div
             className="flex justify-center items-center gap-2"
             onClick={handleTheme}
           >
-            <span className="">Light Mode</span>
+            {/* <span className="">Light Mode</span> */}
             <LightBulbIcon className="h-5 w-5" />
           </div>
         )}

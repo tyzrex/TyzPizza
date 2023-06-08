@@ -25,21 +25,6 @@ const Navbar = () => {
     setNav(false);
   };
 
-  const navbar: any = {
-    hidden: {
-      opacity: 0,
-      y: -90,
-    },
-
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 1,
-      },
-    },
-  };
-
   const item: any = {
     exit: {
       opacity: 0,
@@ -62,15 +47,19 @@ const Navbar = () => {
   };
 
   return (
-    <motion.div className="bg-white dark:bg-bg-dark-main">
-      <motion.nav className="relative py-3 xl:py-6 flex justify-between items-center max-w-[90%] mx-auto xl:max-w-[1200px]">
+    <div className="bg-white dark:bg-bg-dark-main">
+      <nav className="relative py-3 xl:py-6 flex justify-between items-center max-w-[90%] mx-auto xl:max-w-[1200px]">
         <Link className="" to={"/"}>
           <img src={Logo} alt="logo" className="w-[200px]" />
         </Link>
-        <div className="flex justify-center items-center gap-4">
+        <div className="flex justify-center items-center ">
           {user ? (
-            <div>
+            <div className="flex items-center gap-3 p-2 rounded-xl">
+              <h1 className="hidden md:inline-block text-sm text-black dark:text-white font-normal">
+                {user.name}
+              </h1>
               <DropDown />
+              <Theme />
             </div>
           ) : (
             <div>
@@ -90,7 +79,7 @@ const Navbar = () => {
           )}
           <button
             onClick={handleNav}
-            className="navbar-burger flex items-center text-[#a55e6f] p-3 xl:hidden"
+            className="navbar-burger flex items-center text-accent-2 p-3 xl:hidden"
           >
             <Bars3Icon className="h-10 w-10" />
           </button>
@@ -102,12 +91,12 @@ const Navbar = () => {
               initial="hidden"
               animate="show"
               whileHover="hover"
-              className="text-accent-4 dark:text-gray-400"
+              className="text-black dark:text-gray-400"
             >
               Home
             </motion.div>
           </Link>
-          <li className="text-accent-4 dark:text-gray-400">
+          <li className="text-black dark:text-gray-400">
             <EllipsisVerticalIcon className="h-5 w-5" />
           </li>
           <Link to={"/about"}>
@@ -116,12 +105,12 @@ const Navbar = () => {
               initial="hidden"
               animate="show"
               whileHover="hover"
-              className="text-accent-4 dark:text-gray-400"
+              className="text-black dark:text-gray-400"
             >
               About
             </motion.div>
           </Link>
-          <li className="text-accent-4 dark:text-gray-400">
+          <li className="text-black dark:text-gray-400">
             <EllipsisVerticalIcon className="h-5 w-5" />
           </li>
           <div>
@@ -130,12 +119,12 @@ const Navbar = () => {
               initial="hidden"
               animate="show"
               whileHover="hover"
-              className="text-accent-4 dark:text-gray-400"
+              className="text-black dark:text-gray-400"
             >
               Services
             </motion.div>
           </div>
-          <li className="text-accent-4 dark:text-gray-400">
+          <li className="text-black dark:text-gray-400">
             <EllipsisVerticalIcon className="h-5 w-5" />
           </li>
           <div>
@@ -144,12 +133,12 @@ const Navbar = () => {
               initial="hidden"
               animate="show"
               whileHover="hover"
-              className="text-accent-4 dark:text-gray-400"
+              className="text-black dark:text-gray-400"
             >
               Pricing
             </motion.div>
           </div>
-          <li className="text-accent-4 dark:text-gray-400">
+          <li className="text-black dark:text-gray-400">
             <EllipsisVerticalIcon className="h-5 w-5" />
           </li>
           <div>
@@ -158,13 +147,13 @@ const Navbar = () => {
               initial="hidden"
               animate="show"
               whileHover="hover"
-              className="text-accent-4 dark:text-gray-400"
+              className="text-black dark:text-gray-400"
             >
               Contact
             </motion.div>
           </div>
         </ul>
-      </motion.nav>
+      </nav>
       <AnimatePresence>
         {nav && (
           <motion.div
@@ -311,7 +300,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 

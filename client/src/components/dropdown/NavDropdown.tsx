@@ -14,7 +14,7 @@ const DropDown = () => {
       >
         {user?.picture ? (
           <img
-            src={user?.picture}
+            src={user.picture}
             alt="avatar"
             className="w-10 h-10 rounded-full"
           />
@@ -39,7 +39,7 @@ const DropDown = () => {
             My Orders
           </li>
           <li>
-            <hr className="border-gray-300 dark:border-gray-700 my-1" />
+            <hr className="my-1" />
           </li>
           <li className="cursor-pointer text-gray-600 dark:text-gray-400 text-sm dark:hover:bg-gray-600 dark:hover:text-white leading-3 tracking-normal py-3 hover:bg-gray-100 px-3 font-normal">
             Settings
